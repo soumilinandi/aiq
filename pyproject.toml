@@ -224,6 +224,8 @@ dev = [
     "mypy>=1.5.0",
     "dask[distributed]>=2024.1.0",
     # Workspace packages for testing
+    "aiq-databricks-ontology",
+    "aiq-snowflake-ontology",
     "aiq-gsf",
     "google-scholar-paper-search",
     "tavily-web-search",
@@ -274,6 +276,8 @@ exclude = ["mcp"]
 
 [tool.uv.sources]
 aiq-agent = { workspace = true }
+aiq-databricks-ontology = { workspace = true }
+aiq-snowflake-ontology = { workspace = true }
 aiq-gsf = { workspace = true }
 google-scholar-paper-search = { workspace = true }
 tavily-web-search = { workspace = true }
