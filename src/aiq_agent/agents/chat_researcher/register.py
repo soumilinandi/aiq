@@ -292,7 +292,13 @@ class ContextAwareIntentRouterConfig(FunctionBaseConfig, name="context_aware_int
     catalog_source_id: str = Field(default="gsf", min_length=1)
     max_catalog_results: int = Field(default=10, ge=1, le=100)
     catalog_confidence_threshold: float = Field(default=0.6, ge=0, le=1)
-    catalog_max_distance: float = Field(default=0.75, gt=0)
+    catalog_max_distance: float | None = Field(
+        default=None,
+        gt=0,
+        description=(
+            "Optional provider-specific catalog distance cutoff. Set null when ranking uses no calibrated cutoff."
+        ),
+    )
     verbose: bool = Field(default=False)
     llm_timeout: float = Field(
         default=90,

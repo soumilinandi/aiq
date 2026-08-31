@@ -35,7 +35,7 @@ class CatalogToolInput(BaseModel):
     question: str
     database_name: str | None = None
     max_results: int = 10
-    max_distance: float = 0.75
+    max_distance: float | None = None
 
 
 class FakeClassifier:
@@ -203,7 +203,7 @@ async def test_compiled_router_uses_one_llm_call_then_scoped_python_catalog_call
     async def catalog(
         question: str,
         max_results: int,
-        max_distance: float,
+        max_distance: float = 0.75,
         database_name: str | None = None,
     ) -> str:
         """Search the catalog."""
@@ -450,6 +450,19 @@ async def test_python_owns_bounds_and_exact_database_scope():
     ]
     assert router.classifier.contexts[0]["database_scope_provided"] is True
     assert "database_name" not in router.classifier.contexts[0]
+
+
+@pytest.mark.asyncio
+async def test_router_omits_uncalibrated_optional_catalog_distance():
+    router = _router(
+        _classification(catalog_action="search", catalog_question="query"),
+        _catalog_result(),
+    )
+    router.catalog_max_distance = None
+
+    await router.run(_state())
+
+    assert router.catalog_tool.calls == [{"question": "query", "max_results": 10}]
 
 
 @pytest.mark.asyncio

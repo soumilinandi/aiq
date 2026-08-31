@@ -136,7 +136,7 @@ class ContextAwareIntentRouter:
         catalog_source_id: str = "gsf",
         max_catalog_results: int = 10,
         catalog_confidence_threshold: float = 0.6,
-        catalog_max_distance: float = 0.75,
+        catalog_max_distance: float | None = None,
         callbacks: list[BaseCallbackHandler] | None = None,
         llm_timeout: float = 90,
         classifier_max_attempts: int = _DEFAULT_CLASSIFIER_MAX_ATTEMPTS,
@@ -236,15 +236,15 @@ class ContextAwareIntentRouter:
         raise AssertionError("Classifier retry loop exited without a result")
 
     async def _search_catalog(self, question: str, *, database_name: str | None) -> CatalogRoutingResponse:
+        catalog_input: dict[str, Any] = {
+            "question": question,
+            "database_name": database_name,
+            "max_results": self.max_catalog_results,
+        }
+        if self.catalog_max_distance is not None:
+            catalog_input["max_distance"] = self.catalog_max_distance
         try:
-            request = self.catalog_input_schema.model_validate(
-                {
-                    "question": question,
-                    "database_name": database_name,
-                    "max_results": self.max_catalog_results,
-                    "max_distance": self.catalog_max_distance,
-                }
-            )
+            request = self.catalog_input_schema.model_validate(catalog_input)
         except ValidationError as error:
             raise RoutingProtocolError("Code-owned catalog arguments failed validation") from error
         payload = request.model_dump(exclude_none=True)
