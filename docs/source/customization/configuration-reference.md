@@ -530,6 +530,12 @@ functions:
 Adaptive ReAct agent for structured-data analysis, document retrieval, web
 evidence, and final synthesis.
 
+The example below configures GSF. A deployment using Snowflake or Databricks
+keeps the same `ontology_provider` roles and substitutes the provider's function
+group and tool references. Configure one ontology provider per workflow; its
+catalog and execution tools must all map to the same `data_source_registry`
+source. See the provider package README for its prerequisites and credentials.
+
 ```yaml
 functions:
   data_science_agent:

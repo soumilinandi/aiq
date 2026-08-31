@@ -22,11 +22,14 @@ The agent is exposed through two boundaries that share the same ReAct runtime:
 ## Tool integration
 
 The agent receives tools through NeMo Agent Toolkit references and the
-`data_source_registry`; it does not contain provider clients.
+`data_source_registry`; it does not contain provider clients. One
+`ontology_provider` assignment identifies the configured provider's catalog,
+analytical, and optional predictive tools.
 
-- `gsf__catalog_search` discovers query-relevant ontology candidates and entity
+- The configured catalog tool discovers query-relevant ontology candidates and
   coverage.
-- `gsf__text_to_sql` generates validated SQL and returns bounded rows from GSF.
+- The configured analytical tool generates and executes a bounded structured-data
+  query through the selected provider.
 - `knowledge_search` uses the configured AI-Q knowledge backend.
 - `web_search_tool` uses the configured AI-Q web-search provider.
 - `python`, when configured through `sandboxed_python`, runs self-contained
@@ -44,8 +47,8 @@ shallow and deep researchers.
 graph TD
     A[User analytical question] --> B[Data Science Agent]
     B --> C{What evidence is needed?}
-    C -->|Enterprise semantics| D[GSF catalog search]
-    C -->|Structured values| E[GSF text-to-SQL]
+    C -->|Enterprise semantics| D[Provider catalog search]
+    C -->|Structured values| E[Provider analytical query]
     C -->|Ingested documents| F[AI-Q knowledge search]
     C -->|Current public evidence| G[AI-Q web search]
     D --> B
@@ -55,10 +58,10 @@ graph TD
     B --> H[Grounded analysis and synthesis]
 ```
 
-GSF calls are made sequentially so each later question can use exact entities or
-values observed earlier. Document and web searches should be narrow enough to
-represent distinct evidence needs. The final answer goes through AI-Q's source
-registry, citation verification, and report sanitization.
+Ontology-provider calls are made sequentially so each later question can use
+exact entities or values observed earlier. Document and web searches should be
+narrow enough to represent distinct evidence needs. The final answer goes
+through AI-Q's source registry, citation verification, and report sanitization.
 
 The optional request-local structured-data guard enforces configured catalog and
 text-to-SQL call limits, serializes calls, caches exact repeats, and records
@@ -114,9 +117,11 @@ Optional variables include `GSF_READ_TIMEOUT_SECONDS`,
 ./scripts/start_cli.sh --config_file configs/config_cli_data_science.yml
 ```
 
-The local profile uses password-session authentication for GSF. Product
+The shipped local profile uses GSF with password-session authentication. Product
 integration should omit that auth block and rely on AI-Q's request-scoped user
-token forwarding.
+token forwarding. Snowflake and Databricks profiles use their respective
+function groups and replace the provider, registry tools, and router catalog
+tool as shown in the provider package READMEs.
 
 The direct CLI profile uses the Foundational RAG backend for knowledge
 retrieval. Its ingestion URL is intentionally fail-closed because this profile

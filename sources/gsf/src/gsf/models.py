@@ -5,6 +5,7 @@
 
 from typing import Annotated
 from typing import Any
+from typing import Literal
 
 from pydantic import BaseModel
 from pydantic import ConfigDict
@@ -50,16 +51,22 @@ class CatalogCandidate(GSFResponse):
     attribute: str
     term: str
     id: str
+    score: float | None = Field(default=None, ge=0, le=1)
+    scope: str | None = None
+    summary: str | None = Field(default=None, max_length=2_000)
+    capabilities: list[Literal["text_to_sql", "text_to_pql"]] = Field(default_factory=list)
 
 
 class CatalogSearchResponse(GSFResponse):
     """Coverage and ranked semantic candidates returned by GSF."""
 
+    status: Literal["success"] = "success"
     request_id: str | None = None
     coverage: float | None = Field(default=None, ge=0, le=1)
     candidates: list[CatalogCandidate]
     uncovered_entities: list[str] | None = None
     truncated: bool = False
+    warnings: list[str] = Field(default_factory=list)
 
 
 class ResultColumn(GSFResponse):

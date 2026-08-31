@@ -141,7 +141,10 @@ def _request_trace_headers() -> Mapping[str, str]:
     return {name: value for name, value in incoming.items() if name.lower() in FORWARDED_HEADER_NAMES and value}
 
 
-@register_function_group(config_type=SnowflakeFunctionGroupConfig)
+@register_function_group(
+    config_type=SnowflakeFunctionGroupConfig,
+    framework_wrappers=[LLMFrameworkEnum.LANGCHAIN],
+)
 async def snowflake_function_group(config: SnowflakeFunctionGroupConfig, builder: Builder):
     """Build Snowflake catalog-search and text-to-SQL tools."""
 

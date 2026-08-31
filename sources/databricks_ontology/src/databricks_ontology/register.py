@@ -129,7 +129,10 @@ def _request_trace_headers() -> Mapping[str, str]:
     return {name: value for name, value in incoming.items() if name.lower() in FORWARDED_HEADER_NAMES and value}
 
 
-@register_function_group(config_type=DatabricksFunctionGroupConfig)
+@register_function_group(
+    config_type=DatabricksFunctionGroupConfig,
+    framework_wrappers=[LLMFrameworkEnum.LANGCHAIN],
+)
 async def databricks_function_group(config: DatabricksFunctionGroupConfig, _builder: Builder):
     """Build Databricks ontology tools around typed SDK and semantic retrieval clients."""
 

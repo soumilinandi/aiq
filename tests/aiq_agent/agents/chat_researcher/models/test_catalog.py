@@ -12,6 +12,7 @@ from aiq_agent.agents.chat_researcher.models import CatalogRoutingResponse
 def test_catalog_response_accepts_current_gsf_shape() -> None:
     response = CatalogRoutingResponse.model_validate(
         {
+            "status": "success",
             "request_id": "gsf-catalog-request-1",
             "coverage": 0.5,
             "candidates": [
@@ -20,15 +21,21 @@ def test_catalog_response_accepts_current_gsf_shape() -> None:
                     "attribute": "recognized_revenue",
                     "term": "Revenue",
                     "id": "attr:revenue",
+                    "score": 0.91,
+                    "scope": "finance",
+                    "summary": "Recognized revenue by region.",
+                    "capabilities": ["text_to_sql"],
                 }
             ],
             "uncovered_entities": ["region"],
             "truncated": False,
+            "warnings": [],
         }
     )
 
     assert response.coverage == 0.5
     assert response.candidates[0].id == "attr:revenue"
+    assert response.candidates[0].scope == "finance"
     assert response.uncovered_entities == ["region"]
 
 

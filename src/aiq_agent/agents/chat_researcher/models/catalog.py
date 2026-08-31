@@ -3,13 +3,15 @@
 
 """Catalog routing contracts."""
 
+from typing import Literal
+
 from pydantic import BaseModel
 from pydantic import ConfigDict
 from pydantic import Field
 
 
 class CatalogCandidate(BaseModel):
-    """A ranked semantic candidate returned by GSF entity-coverage search."""
+    """A ranked semantic candidate returned by an ontology provider."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -17,15 +19,21 @@ class CatalogCandidate(BaseModel):
     attribute: str
     term: str
     id: str
+    score: float | None = Field(default=None, ge=0, le=1)
+    scope: str | None = None
+    summary: str | None = Field(default=None, max_length=2_000)
+    capabilities: list[str] = Field(default_factory=list)
 
 
 class CatalogRoutingResponse(BaseModel):
-    """Validated GSF catalog result used to select the research workflow."""
+    """Validated ontology catalog result used to select the research workflow."""
 
     model_config = ConfigDict(extra="forbid")
 
+    status: Literal["success"] = "success"
     request_id: str | None = None
     coverage: float = Field(ge=0, le=1)
     candidates: list[CatalogCandidate]
     uncovered_entities: list[str] | None = None
     truncated: bool = False
+    warnings: list[str] = Field(default_factory=list)
